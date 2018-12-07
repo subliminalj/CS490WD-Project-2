@@ -17,13 +17,13 @@ function init() {
     showhistory();
 }
 function showcars(){
+    var test = $("#find-car-input").val();
     $.ajax({
         method: "POST",
         url: "server/controller.php",
         dataType: "json",
-        data: {type: "search"},//request type: info
+        data: {type: "search",search:$("#find-car-input").val()},//request type: info
         success: function (data) {
-            alert("test");
             var search_template=$("#find-car-template").html();//get the info-template
             var html_maker=new htmlMaker(search_template);
             var html=html_maker.getHTML(data);//generate dynamic HTML for student-info
@@ -67,7 +67,6 @@ function showhistory(){
 }
 function return_car(return_button){
     var return_id=$(return_button).attr("data-rental-id");
-    alert("test");
      $.ajax({
         method: "POST",
         url: "server/controller.php",
@@ -82,7 +81,6 @@ function return_car(return_button){
     });   
 }
 function rent_car(rent_button){
-    alert("helloooooooooo");
     var rent_id=$(rent_button).attr("id");
      $.ajax({
         method: "POST",
@@ -97,3 +95,4 @@ function rent_car(rent_button){
         }
     });   
 }
+
