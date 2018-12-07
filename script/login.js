@@ -1,36 +1,30 @@
-$(document).ready(init); //call the init function after the page loads
+<?php
+include 'connection.php';
+include "sanitization.php";
+$return = "fail"; //the value that is returned to Ajax
 
-function init(){
-    /** when the login button gets clicked, call the login function **/
-    $("#search-button").on("click",login);
-    $("#password-input").on("keydown",function(event){maybe_login(event);});
-}
-/** when the user presses Enter in the password field, call login **/
-function maybe_login(event){
-    if (event.keyCode == 13) //ENTER KEY
-        login();
-}
+if (isset($_POST['name']) && isset($_POST['password'])) {
+    $username = sanitizeMYSQL($connection,$_POST['name']);
+    $password = md5($salt . sanitizeMYSQL($connection,$_POST['password'])); //sencrypt it
+    $salt="web";
+    
 
-function login() {
-     $("#loading").attr("class","loading");//show the loading icon
-        $.ajax({
-        method: "POST",
-        url: "server/login_session.php",
-        dataType: "text",
-        data: new FormData($("#login_form")[0]),
-        processData: false,
-        contentType: false,
-        success: function (data) {
-        if($.trim(data)=="success")
-            window.location.assign("cars.html"); //redirect the page to cars.html
-        else{
-            $("#loading").attr("class","loading_hidden"); //hide the loading icon
-            $("#login_feedback").html("Invalid username or password"); //show feedback
+    $query = "SELECT * FROM Customer WHERE ID='" . $username . "' AND Password='" . $password . "'";
+    $result = mysqli_query($connection,$query);
+    if ($result) {
+        $row_count = mysqli_num_rows($result);
+        if ($row_count == 1) { //start a session
+            $row = mysqli_fetch_array($result);
+            session_start(); //we start a session
+            $_SESSION['start'] = time(); //we set that to make the session expire after some time
+            $_SESSION["username"] = $row["ID"];  //we save the student ID here
+            ini_set('session.use_only_cookies',1); //use cookies only, prevent session hijacking
+            $return=  "success"; //login succeeded
         }
-        }
-    });
+    }
 }
 
+    echo $return;
 
 
 
