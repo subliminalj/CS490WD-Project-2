@@ -54,19 +54,34 @@ if (isset($_POST["type"])) {
 }
 
 function rent_car($connection,$course_id) {
-    $query = "DELETE FROM Enrollment WHERE Course_ID='$course_id' AND Student_ID='" . $_SESSION["username"] . "'";
-    $result = mysqli_query($connection, $query);
-    if (!$result)
+	$date= date_create('Y-m-d');
+    $id=$_POST['id'];
+    $query1 = "UPDATE rental SET status= '2', rentDate='$date' WHERE status='1' AND carID='$id'";
+        $result1 = mysqli_query($connection, $query1);
+    if (!$result1){
         return "fail";
+    }
+    $query2 = "UPDATE car SET status= '2' WHERE status='1' AND ID='$id'";
+    $result2 = mysqli_query($connection, $query2);
+    if (!$result2){
+        return "fail";
+    }
     return "success";
 }
 
 function return_car($connection,$course_id) {
-    alert("return");
-    $query = "DELETE FROM Enrollment WHERE Course_ID='$course_id' AND Student_ID='" . $_SESSION["username"] . "'";
-    $result = mysqli_query($connection, $query);
-    if (!$result)
+    $date= date_create('Y-m-d');
+    $id = $_POST['return_id'];
+    $query1 = "UPDATE rental SET status='1', returnDate='$date' WHERE status='2' AND ID='$id'";
+    $result1 = mysqli_query($connection, $query1);
+    if (!$result1){
         return "fail";
+    }
+    $query2= "UPDATE car INNER JOIN rental ON car.ID=rental.carID SET car.status='1' WHERE rental.ID='$id'";
+    $result2 = mysqli_query($connection, $query2);
+    if (!$result2){
+        return "fail";
+    }
     return "success";
 }
 
