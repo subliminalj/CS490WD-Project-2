@@ -34,7 +34,6 @@ function showcars(){
         dataType: "json",
         data: {type: "search",search:search},//request type: search
         success: function (data) {
-            alert("return showcars")
             var search_template=$("#find-car-template").html();//get the info-template
             var html_maker=new htmlMaker(search_template);
             var html=html_maker.getHTML(data);//generate dynamic HTML for searched cars
