@@ -67,7 +67,6 @@ function showhistory(){
         dataType: "json",
         data: {type: "history"},//request type: history
         success: function (data) {
-            alert("test");
             var history_template=$("#returned-car-template").html();
             var html_maker=new htmlMaker(history_template);
             var html=html_maker.getHTML(data);
@@ -85,7 +84,6 @@ function return_car(return_button){
         dataType: "text",
         data: {type: "return",return_id:return_id},
         success: function (data) {
-            alert("return showcars")
             if ($.trim(data)=="success") {
                 alert("Car has been returned");
                 showrented(); //refresh rented
