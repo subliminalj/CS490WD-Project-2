@@ -43,7 +43,7 @@ function showcars(){
         }
     });
 }
-//shows rented csars
+//shows rented cars
 function showrented(){
     $.ajax({
         method: "POST",
@@ -88,9 +88,9 @@ function return_car(return_button){
             alert("return showcars")
             if ($.trim(data)=="success") {
                 alert("Car has been returned");
-                show_rented(); //refresh courses
+                showrented(); //refresh rented
             }
-            showhistory();
+            showhistory(); //refresh history
         }
     });   
 }
@@ -105,9 +105,9 @@ function rent_car(rent_button){
         success: function (data) {
             if ($.trim(data)=="success") {
                 alert("Car has been rented");
-                show_rented(); //refresh courses
+                showrented(); //refresh rented
             }
-            showrented();
+            showcars();  //refresh cars
         }
     });   
 }
