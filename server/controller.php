@@ -74,14 +74,14 @@ if (isset($_POST["type"])) {
     return json_encode($final);
 }
 
-function rent_car($connection, $id) {
+function rent_car($connection) {
     $id=$_POST['id'];
-    $query1 = "INSERT INTO rental(rentDate, returnDate, status, CustomerID, carID) VALUES(CURDATE(), NULL, '1', '" . $_SESSION["username"] . "', '$id')" ;
+    $query1 = "INSERT INTO rental(rentDate, returnDate, status, CustomerID, carID) VALUES(CURDATE(), NULL, '2', '" . $_SESSION["username"] . "', '$id')" ;
         $result1 = mysqli_query($connection, $query1);
     if (!$result1){
         return "fail";
     }
-    $query2 = "UPDATE car INNER JOIN rental ON car.ID=rental.carID SET car.status= '1' WHERE car.ID='$id'";
+    $query2 = "UPDATE car INNER JOIN rental ON car.ID=rental.carID SET car.status= '2' WHERE car.ID='$id'";
     $result2 = mysqli_query($connection, $query2);
     if (!$result2){
         return "fail";
@@ -89,9 +89,9 @@ function rent_car($connection, $id) {
     return "success";
 }
 
-function return_car($connection, $return_id) {
-    $id=$_POST['id'];
-    $query1 = "INSERT INTO rental(rentDate, returnDate, status, CustomerID, carID) VALUES(CURDATE(), NULL, '1', '" . $_SESSION["username"] . "', '$id')" ;
+function return_car($connection) {
+    $id=$_POST['return_id'];
+    $query1 = "UPDATE rental SET status='1', returnDate=CURDATE() WHERE ID='$id'" ;
         $result1 = mysqli_query($connection, $query1);
     if (!$result1){
         return "fail";
