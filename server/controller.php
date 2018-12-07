@@ -42,6 +42,11 @@ if (isset($_POST["type"])) {
     if (isset($_POST['search']) && trim($_POST['search']) != "") {
     //data is sanatized
     $data = sanitizeMYSQL($connection, $_POST['search']);
+    $words = explode(" ", $data);
+    $LIKE = "";
+    $LIKE.=LIKE("FirstName", $words);
+    $LIKE.=" OR " . LIKE("LastName", $words);
+   
     }
     $final = array();
     $final["search_car"] = array();
@@ -178,4 +183,3 @@ function logout() {
 }
 
 echo $result;
-
