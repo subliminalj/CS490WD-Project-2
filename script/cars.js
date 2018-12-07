@@ -1,10 +1,16 @@
 $(document).ready(init);
 
 function init() {
+    //logout event listener
+    $("#logout-link").on("click", function(){
+        logout();
+    });
+    //user clicks search button
     $("#find-car").on("click", function () {
         showcars();
     }
     );
+    //user hits enter event listener
     $('#find-car-input').on('keypress', function (e) {
         if (e.which === 13) {
             //Disable textbox to prevent multiple submit
@@ -13,48 +19,53 @@ function init() {
             $(this).removeAttr("disabled");
         }
     });
+    //loads rented cars
     showrented();
+    //loads car history
     showhistory();
 }
+//show car search results
 function showcars(){
-    var test = $("#find-car-input").val();
+    //gets input value
+    var search = $("#find-car-input").val();
     $.ajax({
         method: "POST",
         url: "server/controller.php",
         dataType: "json",
-        data: {type: "search",search:$("#find-car-input").val()},//request type: info
+        data: {type: "search",search:search},//request type: search
         success: function (data) {
             alert("return showcars")
             var search_template=$("#find-car-template").html();//get the info-template
             var html_maker=new htmlMaker(search_template);
-            var html=html_maker.getHTML(data);//generate dynamic HTML for student-info
-            $("#search_results").html(html);//show the student info in the info div
+            var html=html_maker.getHTML(data);//generate dynamic HTML for searched cars
+            $("#search_results").html(html);//show the car info div
             $(".car_rent").on("click",function(){rent_car(this);});
         }
     });
 }
-
+//shows rented csars
 function showrented(){
     $.ajax({
         method: "POST",
         url: "server/controller.php",
         dataType: "json",
-        data: {type: "rented"},//request type: info
+        data: {type: "rented"},//request type: rented
         success: function (data) {
             var rental_template=$("#rented-car-template").html();//get the info-template
             var html_maker=new htmlMaker(rental_template);
-            var html=html_maker.getHTML(data);//generate dynamic HTML for student-info
+            var html=html_maker.getHTML(data);//generate dynamic HTML for rented-info
             $("#rented_cars").html(html);//show the student info in the info div
             $(".return_car").on("click",function(){return_car(this);});
         }
     });
 }
+//gets rental history 
 function showhistory(){
     $.ajax({
         method: "POST",
         url: "server/controller.php",
         dataType: "json",
-        data: {type: "history"},//request type: info
+        data: {type: "history"},//request type: history
         success: function (data) {
             alert("test");
             var history_template=$("#returned-car-template").html();
@@ -72,29 +83,44 @@ function return_car(return_button){
         method: "POST",
         url: "server/controller.php",
         dataType: "text",
-        data: {type: "return",return_id:$(return_button).attr("data-rental-id")},
+        data: {type: "return",return_id:return_id},
         success: function (data) {
             alert("return showcars")
             if ($.trim(data)=="success") {
                 alert("Car has been returned");
                 show_rented(); //refresh courses
             }
+            showhistory();
         }
     });   
 }
 function rent_car(rent_button){
     var rent_id=$(rent_button).attr("id");
+    $("#find-car-input").val();
      $.ajax({
         method: "POST",
         url: "server/controller.php",
         dataType: "text",
-        data: {type: "rent",id:$(rent_button).attr("id")},
+        data: {type: "rent",id:rent_id},
         success: function (data) {
             if ($.trim(data)=="success") {
                 alert("Car has been rented");
                 show_rented(); //refresh courses
             }
+            showrented();
         }
     });   
 }
-
+function logout() {
+    $.ajax({
+        method: "POST",
+        url: "server/controller.php",
+        dataType: "text",
+        data: {type: "logout"},
+        success: function (data) {
+            if ($.trim(data)=="success") {
+                window.location.assign("index.html");
+            }
+        }
+    });
+}
