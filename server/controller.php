@@ -53,7 +53,7 @@ if (isset($_POST["type"])) {
     return json_encode($final);
 }
 
-function rent_car($connection,$course_id) {
+function rent_car($connection) {
 	$date= date_create('Y-m-d');
     $id=$_POST['id'];
     $query1 = "UPDATE rental SET status= '2', rentDate='$date' WHERE status='1' AND carID='$id'";
@@ -69,7 +69,7 @@ function rent_car($connection,$course_id) {
     return "success";
 }
 
-function return_car($connection,$course_id) {
+function return_car($connection) {
     $date= date_create('Y-m-d');
     $id = $_POST['return_id'];
     $query1 = "UPDATE rental SET status='1', returnDate='$date' WHERE status='2' AND ID='$id'";
