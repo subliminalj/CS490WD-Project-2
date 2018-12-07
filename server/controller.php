@@ -3,8 +3,7 @@ include 'connection.php';
 include 'sanitization.php';
 session_start(); //start the session
 $result = "";
-//search_cars($connection);
-//return_car($connection);
+
 
 //only process the data if there a request was made and the session is active
 if (isset($_POST["type"])) {
@@ -14,31 +13,41 @@ if (isset($_POST["type"])) {
 
 
     switch ($request_type) { //check the request type
+        //calls search function
         case "search":
             $result = search_cars($connection);
             break;
+        //gets cars rented
         case "rented":
             $result = get_rented($connection);
             break;
+        //gets rental history
         case "history":
             $result = get_history($connection);
             break;
+        //rents car
         case "rent":
-            $result=drop($connection);
+            $result=rent_car($connection,$_POST['return_id']);
             break;
         case "return":
-            $result=drop($connection);
+            $result=return_car($connection,$_POST['return_id'] );
+            break;
+        case "logout":
+            logout();
+            $result="success";
             break;
     }
 }
     function search_cars($connection) {
     if (isset($_POST['search']) && trim($_POST['search']) != "") {
+    //data is sanatized
     $data = sanitizeMYSQL($connection, $_POST['search']);
     }
     $final = array();
     $final["search_car"] = array();
     $query = "SELECT cs.make,cs.yearmade, c.id,cs.model,c.picture_type, c.picture,cs.size,c.picture,c.picture_type,c.color,c.status FROM carspecs cs inner join car c WHERE cs.make LIKE '$data' OR cs.yearmade LIKE '$data' OR cs.model LIKE '$data' or cs.size like '$data' or c.color like '$data'";
     $result = mysqli_query($connection, $query);
+    //if no results return
     if (!$result)
         return json_encode($array);
     else {
@@ -60,15 +69,14 @@ if (isset($_POST["type"])) {
     return json_encode($final);
 }
 
-function rent_car($connection) {
-    $date= date_create('Y-m-d');
+function rent_car($connection, $id) {
     $id=$_POST['id'];
-    $query1 = "UPDATE rental SET status= '2', rentDate='$date' WHERE status='1' AND carID='$id'";
+    $query1 = "INSERT INTO rental(rentDate, returnDate, status, CustomerID, carID) VALUES(CURDATE(), NULL, '1', '" . $_SESSION["username"] . "', '$id')" ;
         $result1 = mysqli_query($connection, $query1);
     if (!$result1){
         return "fail";
     }
-    $query2 = "UPDATE car SET status= '2' WHERE status='1' AND ID='$id'";
+    $query2 = "UPDATE car INNER JOIN rental ON car.ID=rental.carID SET car.status= '1' WHERE car.ID='$id'";
     $result2 = mysqli_query($connection, $query2);
     if (!$result2){
         return "fail";
@@ -76,15 +84,14 @@ function rent_car($connection) {
     return "success";
 }
 
-function return_car($connection) {
-    $date= date_create('Y-m-d');
-    $id = $_POST['return_id'];
-    $query1 = "UPDATE rental SET status='1', returnDate='$date' WHERE status='2' AND ID='$id'";
-    $result1 = mysqli_query($connection, $query1);
+function return_car($connection, $return_id) {
+    $id=$_POST['id'];
+    $query1 = "INSERT INTO rental(rentDate, returnDate, status, CustomerID, carID) VALUES(CURDATE(), NULL, '1', '" . $_SESSION["username"] . "', '$id')" ;
+        $result1 = mysqli_query($connection, $query1);
     if (!$result1){
         return "fail";
     }
-    $query2= "UPDATE car INNER JOIN rental ON car.ID=rental.carID SET car.status='1' WHERE rental.ID='$id'";
+    $query2 = "UPDATE car INNER JOIN rental ON car.ID=rental.carID SET car.status= '1' WHERE rental.ID='$id'";
     $result2 = mysqli_query($connection, $query2);
     if (!$result2){
         return "fail";
@@ -153,6 +160,21 @@ function get_history($connection) {
         }
     }
     return json_encode($final);
+}
+function logout() {
+    // Unset all of the session variables.
+    $_SESSION = array();
+
+// If it's desired to kill the session, also delete the session cookie.
+// Note: This will destroy the session, and not just the session data!
+    if (ini_get("session.use_cookies")) {
+        $params = session_get_cookie_params();
+        setcookie(session_name(), '', time() - 42000, $params["path"], $params["domain"], $params["secure"], $params["httponly"]
+        );
+    }
+
+// Finally, destroy the session.
+    session_destroy();
 }
 
 echo $result;
