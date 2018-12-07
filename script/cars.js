@@ -24,11 +24,12 @@ function showcars(){
         dataType: "json",
         data: {type: "search",search:$("#find-car-input").val()},//request type: info
         success: function (data) {
+            alert("return showcars")
             var search_template=$("#find-car-template").html();//get the info-template
             var html_maker=new htmlMaker(search_template);
             var html=html_maker.getHTML(data);//generate dynamic HTML for student-info
             $("#search_results").html(html);//show the student info in the info div
-            $("div[name=rentcar]").on("click",function(){rent_car(this);});
+            $(".car_rent").on("click",function(){rent_car(this);});
         }
     });
 }
@@ -44,7 +45,7 @@ function showrented(){
             var html_maker=new htmlMaker(rental_template);
             var html=html_maker.getHTML(data);//generate dynamic HTML for student-info
             $("#rented_cars").html(html);//show the student info in the info div
-            $("div[name=returncar]").on("click",function(){return_car(this);});
+            $(".return_car").on("click",function(){return_car(this);});
         }
     });
 }
@@ -71,8 +72,9 @@ function return_car(return_button){
         method: "POST",
         url: "server/controller.php",
         dataType: "text",
-        data: {type: "return",return_id:return_id},
+        data: {type: "return",return_id:$(return_button).attr("data-rental-id")},
         success: function (data) {
+            alert("return showcars")
             if ($.trim(data)=="success") {
                 alert("Car has been returned");
                 show_rented(); //refresh courses
@@ -86,7 +88,7 @@ function rent_car(rent_button){
         method: "POST",
         url: "server/controller.php",
         dataType: "text",
-        data: {type: "rent",id:rent_id},
+        data: {type: "rent",id:$(rent_button).attr("id")},
         success: function (data) {
             if ($.trim(data)=="success") {
                 alert("Car has been rented");
