@@ -53,7 +53,7 @@ function showrented(){
             var rental_template=$("#rented-car-template").html();//get the info-template
             var html_maker=new htmlMaker(rental_template);
             var html=html_maker.getHTML(data);//generate dynamic HTML for rented-info
-            $("#rented_cars").html(html);//show the student info in the info div
+            $("#rented_cars").html(html);//show the rented cars
             $(".return_car").on("click",function(){return_car(this);});
         }
     });
@@ -66,6 +66,7 @@ function showhistory(){
         dataType: "json",
         data: {type: "history"},//request type: history
         success: function (data) {
+            //template is filled with data
             var history_template=$("#returned-car-template").html();
             var html_maker=new htmlMaker(history_template);
             var html=html_maker.getHTML(data);
@@ -75,7 +76,9 @@ function showhistory(){
         }
     });
 }
+//returns car
 function return_car(return_button){
+    //id is stored and will be sent in the post
     var return_id=$(return_button).attr("data-rental-id");
      $.ajax({
         method: "POST",
@@ -88,17 +91,20 @@ function return_car(return_button){
                 showrented(); //refresh rented
             }
             showhistory(); //refresh history
+            showcars(); //refresh search results
         }
     });   
 }
+//rents car 
 function rent_car(rent_button){
+    //rental id is stored and posted
     var rent_id=$(rent_button).attr("id");
     $("#find-car-input").val();
      $.ajax({
         method: "POST",
         url: "server/controller.php",
         dataType: "text",
-        data: {type: "rent",id:rent_id},
+        data: {type: "rent",rental_id:rent_id},
         success: function (data) {
             if ($.trim(data)=="success") {
                 alert("Car has been rented");
@@ -108,6 +114,7 @@ function rent_car(rent_button){
         }
     });   
 }
+//logout function
 function logout() {
     $.ajax({
         method: "POST",
